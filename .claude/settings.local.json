@@ -1,0 +1,29 @@
+{
+  "env": {
+    "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1"
+  },
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:www.um.edu.my)",
+      "WebFetch(domain:www.monash.edu.my)",
+      "WebFetch(domain:www.utm.my)",
+      "WebFetch(domain:study.um.edu.my)",
+      "WebFetch(domain:www.ukm.my)",
+      "WebFetch(domain:www.upm.edu.my)",
+      "WebFetch(domain:intl.upm.edu.my)",
+      "WebFetch(domain:www.usm.my)",
+      "WebFetch(domain:www.segi.edu.my)",
+      "WebFetch(domain:newinti.edu.my)",
+      "mcp__cloudbase__searchWeb",
+      "Bash(npx create-next-app@latest . --typescript --tailwind --app --no-src-dir --import-alias \"@/*\" --yes)",
+      "Read(//e/project/**)",
+      "Bash(npx create-next-app@latest malaysia-uni-platform --typescript --tailwind --app --no-src-dir --import-alias \"@/*\" --yes)",
+      "Bash(cp -r \"E:/project/malaysia-uni-platform/.\" \"E:/project/马来西亚大学信息平台/\" --exclude=\".git\")",
+      "Bash(robocopy \"E:\\\\project\\\\malaysia-uni-platform\" \"E:\\\\project\\\\马来西亚大学信息平台\" /E /XD node_modules .git /NFL /NJH)",
+      "Bash(robocopy \"E:\\\\project\\\\malaysia-uni-platform\" \"E:\\\\project\\\\马来西亚大学信息平台\" /E /XD node_modules .git /XF .gitignore /NFL /NJH /NJS)",
+      "Bash(powershell -Command \":*)",
+      "Bash(npm install:*)",
+      "Bash(npx shadcn@latest init --yes --defaults)"
+    ]
+  }
+}

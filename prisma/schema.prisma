@@ -1,0 +1,224 @@
+// prisma/schema.prisma
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["fullTextSearch"]
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum UniversityType {
+  public
+  private
+}
+
+enum DegreeLevel {
+  bachelor
+  master
+  phd
+}
+
+enum ContactType {
+  general
+  international
+  admissions
+}
+
+enum AdminRole {
+  super_admin
+  editor
+  viewer
+}
+
+enum RequirementType {
+  gaokao
+  ielts
+  toefl
+  gpa
+  hsk
+  other
+}
+
+model University {
+  id   String @id @default(cuid())
+  slug String @unique
+
+  name_zh          String
+  name_en          String
+  type             UniversityType
+  established_year Int?
+
+  state           String
+  city            String
+  coordinates_lat Decimal  @db.Decimal(10, 7)
+  coordinates_lng Decimal  @db.Decimal(10, 7)
+
+  website         String
+  logo_url        String?
+  cover_image_url String?
+
+  description_zh  String   @db.Text
+  description_en  String?  @db.Text
+  highlights_zh   String[]
+
+  ranking_qs       Int?
+  ranking_times    Int?
+  ranking_malaysia Int?
+  ranking_year     Int?
+
+  total_students         Int?
+  international_students Int?
+  academic_staff         Int?
+
+  featured   Boolean  @default(false)
+  active     Boolean  @default(true)
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  programs    Program[]
+  contacts    UniversityContact[]
+  facilities  UniversityFacility[]
+  living_cost LivingCost?
+  news        NewsUpdate[]
+
+  @@index([type])
+  @@index([state])
+  @@index([featured])
+  @@index([active])
+  @@index([ranking_qs])
+  @@index([ranking_malaysia])
+  @@map("universities")
+}
+
+model Program {
+  id            String     @id @default(cuid())
+  university_id String
+  university    University @relation(fields: [university_id], references: [id], onDelete: Cascade)
+
+  name_zh            String
+  name_en            String
+  code               String?
+
+  degree_level       DegreeLevel
+  field_category     String
+  field_sub_category String?
+  duration_years     Decimal  @db.Decimal(3, 1)
+
+  tuition_local_myr                  Decimal? @db.Decimal(10, 2)
+  tuition_international_myr          Decimal? @db.Decimal(10, 2)
+  tuition_international_cny_estimate Decimal? @db.Decimal(12, 2)
+  tuition_note_zh                    String?
+
+  language_of_instruction String  @default("英语")
+
+  intake_months             Int[]
+  max_intake                Int?
+  application_deadline_note String?
+
+  requirements_zh String? @db.Text
+  min_gpa         Decimal? @db.Decimal(3, 2)
+  min_ielts       Decimal? @db.Decimal(3, 1)
+  min_toefl       Int?
+
+  scholarship_available Boolean @default(false)
+  scholarship_note_zh   String?
+
+  accreditation_zh    String?
+  career_prospects_zh String? @db.Text
+  active              Boolean  @default(true)
+  created_at          DateTime @default(now())
+  updated_at          DateTime @updatedAt
+
+  admission_requirements AdmissionRequirement[]
+
+  @@index([university_id])
+  @@index([degree_level])
+  @@index([field_category])
+  @@index([active])
+  @@index([scholarship_available])
+  @@map("programs")
+}
+
+model AdmissionRequirement {
+  id         String          @id @default(cuid())
+  program_id String
+  program    Program         @relation(fields: [program_id], references: [id], onDelete: Cascade)
+
+  requirement_type RequirementType
+  min_score        Decimal? @db.Decimal(6, 2)
+  description_zh   String
+  is_mandatory     Boolean  @default(true)
+
+  @@index([program_id])
+  @@map("admission_requirements")
+}
+
+model UniversityContact {
+  id            String      @id @default(cuid())
+  university_id String
+  university    University  @relation(fields: [university_id], references: [id], onDelete: Cascade)
+
+  type          ContactType
+  email         String?
+  phone         String?
+  address_zh    String?
+  address_en    String?
+  wechat        String?
+  whatsapp      String?
+  office_hours  String?
+
+  @@index([university_id])
+  @@map("university_contacts")
+}
+
+model UniversityFacility {
+  id            String     @id @default(cuid())
+  university_id String
+  university    University @relation(fields: [university_id], references: [id], onDelete: Cascade)
+
+  facility_type  String
+  name_zh        String
+  description_zh String?
+  image_url      String?
+
+  @@index([university_id])
+  @@map("university_facilities")
+}
+
+model LivingCost {
+  id            String     @id @default(cuid())
+  university_id String     @unique
+  university    University @relation(fields: [university_id], references: [id], onDelete: Cascade)
+
+  accommodation_on_campus_myr   Decimal? @db.Decimal(8, 2)
+  accommodation_off_campus_myr  Decimal? @db.Decimal(8, 2)
+  monthly_living_estimate_myr   Decimal? @db.Decimal(8, 2)
+  monthly_living_estimate_cny   Decimal? @db.Decimal(10, 2)
+  food_estimate_myr             Decimal? @db.Decimal(8, 2)
+  transport_estimate_myr        Decimal? @db.Decimal(8, 2)
+  note_zh                       String?
+  updated_at                    DateTime @updatedAt
+
+  @@map("living_costs")
+}
+
+model NewsUpdate {
+  id            String     @id @default(cuid())
+  university_id String?
+  university    University? @relation(fields: [university_id], references: [id], onDelete: SetNull)
+
+  title_zh     String
+  content_zh   String   @db.Text
+  category     String   @default("招生资讯")
+  published_at DateTime @default(now())
+  source_url   String?
+  active       Boolean  @default(true)
+
+  @@index([university_id])
+  @@index([published_at])
+  @@map("news_updates")
+}
