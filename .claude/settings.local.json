@@ -23,7 +23,8 @@
       "Bash(robocopy \"E:\\\\project\\\\malaysia-uni-platform\" \"E:\\\\project\\\\马来西亚大学信息平台\" /E /XD node_modules .git /XF .gitignore /NFL /NJH /NJS)",
       "Bash(powershell -Command \":*)",
       "Bash(npm install:*)",
-      "Bash(npx shadcn@latest init --yes --defaults)"
+      "Bash(npx shadcn@latest init --yes --defaults)",
+      "Bash(npx shadcn@latest add card badge input select sheet dialog tabs separator skeleton --yes)"
     ]
   }
 }
