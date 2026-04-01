@@ -24,7 +24,28 @@
       "Bash(powershell -Command \":*)",
       "Bash(npm install:*)",
       "Bash(npx shadcn@latest init --yes --defaults)",
-      "Bash(npx shadcn@latest add card badge input select sheet dialog tabs separator skeleton --yes)"
+      "Bash(npx shadcn@latest add card badge input select sheet dialog tabs separator skeleton --yes)",
+      "mcp__Claude_Preview__preview_start",
+      "Bash(npx tsc:*)",
+      "Bash(npx prisma:*)",
+      "Bash(claude mcp:*)",
+      "Bash(node -e \"const c = require\\(''prisma/config''\\); console.log\\(Object.keys\\(c\\)\\)\")",
+      "Bash(node -e \":*)",
+      "Bash(npx tsx:*)",
+      "Bash(mkdir -p \"E:\\\\project\\\\马来西亚大学信息平台\\\\app\\\\api\\\\programs\\\\[slug]\")",
+      "Bash(mkdir -p \"E:\\\\project\\\\马来西亚大学信息平台\\\\app\\\\\\(site\\)\\\\universities\\\\[slug]\\\\programs\\\\[programSlug]\")",
+      "Bash(PRISMA_USER_CONSENT_FOR_DANGEROUS_AI_ACTION=\"允许执行同意执行npx prisma db push --force-reset Yes, you may proceed with the force-reset\" npx prisma db push --force-reset --url \"postgresql://postgres.bhzsjordgmphxbgosybj:Xjw040203%4012@aws-1-ap-southeast-2.pooler.supabase.com:5432/postgres\")",
+      "Bash(curl -s http://localhost:3000/api/universities/universiti-malaya)",
+      "Bash(python -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\(''''Programs:'''', len\\(d[''''data''''][''''programs'''']\\)\\); [print\\(f''''  - {p[\"\"slug\"\"]}: {p[\"\"name_zh\"\"]}''''\\) for p in d[''''data''''][''''programs'''']]\")",
+      "Bash(curl -s http://localhost:3000/api/stats)",
+      "Bash(python3 -c \"import sys,json; d=json.load\\(sys.stdin\\); [print\\(f''''{p[\"\"slug\"\"]}: {p[\"\"name_zh\"\"]}''''\\) for p in d[''''data''''][''''programs'''']]\")",
+      "Bash(tasklist)",
+      "Bash(findstr /i \"node\")",
+      "Bash(curl -s \"http://localhost:3000/api/universities/monash-university-malaysia\")",
+      "Bash(npx tsx -e \":*)",
+      "Bash(python -c \"import sys,json; d=json.load\\(sys.stdin\\); p=d[''''data''''][''''programs'''']; print\\(''''Total programs:'''', len\\(p\\)\\); [print\\(f\"\"{x[''''degree_level'''']:8} | {x[''''slug''''][:45]:45} | {x[''''faculty_zh'''']}\"\"\\) for x in p[:8]]\")",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" \"http://localhost:3000/universities/monash-university-malaysia\")",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" \"http://localhost:3000/universities/monash-university-malaysia/programs/mum-master-of-information-technology\")"
     ]
   }
 }

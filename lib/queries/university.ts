@@ -33,7 +33,7 @@ export async function getUniversities(filters: SearchFilters = {}): Promise<Sear
     ];
   }
 
-  if (degree || field || scholarship !== undefined) {
+  if (degree || field || scholarship !== undefined || tuition_max) {
     where.programs = {
       some: {
         active: true,
@@ -123,6 +123,13 @@ export async function getUniversities(filters: SearchFilters = {}): Promise<Sear
     };
   });
 
+  // Post-query sort for tuition (not possible at DB level since tuition is derived from programs)
+  if (sort === 'tuition_asc') {
+    mapped.sort((a, b) => (a.tuition_from_myr ?? Infinity) - (b.tuition_from_myr ?? Infinity));
+  } else if (sort === 'tuition_desc') {
+    mapped.sort((a, b) => (b.tuition_from_myr ?? 0) - (a.tuition_from_myr ?? 0));
+  }
+
   return {
     data: mapped,
     total,
@@ -196,10 +203,12 @@ export async function getUniversityBySlug(slug: string): Promise<UniversityDetai
     academic_staff: uni.academic_staff,
     programs: uni.programs.map((p) => ({
       id: p.id,
+      slug: p.slug,
       name_zh: p.name_zh,
       name_en: p.name_en,
       degree_level: p.degree_level,
       field_category: p.field_category,
+      faculty_zh: p.faculty_zh,
       duration_years: Number(p.duration_years),
       tuition_international_myr: p.tuition_international_myr ? Number(p.tuition_international_myr) : null,
       tuition_international_cny_estimate: p.tuition_international_cny_estimate
@@ -250,6 +259,59 @@ export async function getUniversityBySlug(slug: string): Promise<UniversityDetai
       published_at: n.published_at.toISOString(),
       source_url: n.source_url,
     })),
+  };
+}
+
+export async function getProgramBySlug(programSlug: string): Promise<import('@/types/university').ProgramDetail | null> {
+  const program = await db.program.findUnique({
+    where: { slug: programSlug, active: true },
+    include: {
+      university: {
+        select: {
+          slug: true,
+          name_zh: true,
+          name_en: true,
+          type: true,
+          logo_url: true,
+        },
+      },
+    },
+  });
+
+  if (!program) return null;
+
+  return {
+    id: program.id,
+    slug: program.slug,
+    name_zh: program.name_zh,
+    name_en: program.name_en,
+    code: program.code,
+    degree_level: program.degree_level,
+    field_category: program.field_category,
+    faculty_zh: program.faculty_zh,
+    duration_years: Number(program.duration_years),
+    tuition_local_myr: program.tuition_local_myr ? Number(program.tuition_local_myr) : null,
+    tuition_international_myr: program.tuition_international_myr ? Number(program.tuition_international_myr) : null,
+    tuition_international_cny_estimate: program.tuition_international_cny_estimate
+      ? Number(program.tuition_international_cny_estimate)
+      : null,
+    tuition_note_zh: program.tuition_note_zh,
+    scholarship_available: program.scholarship_available,
+    scholarship_note_zh: program.scholarship_note_zh,
+    intake_months: program.intake_months,
+    max_intake: program.max_intake,
+    application_deadline_note: program.application_deadline_note,
+    language_of_instruction: program.language_of_instruction,
+    requirements_zh: program.requirements_zh,
+    min_gpa: program.min_gpa ? Number(program.min_gpa) : null,
+    min_ielts: program.min_ielts ? Number(program.min_ielts) : null,
+    min_toefl: program.min_toefl,
+    accreditation_zh: program.accreditation_zh,
+    career_prospects_zh: program.career_prospects_zh,
+    curriculum_zh: program.curriculum_zh,
+    application_materials_zh: program.application_materials_zh,
+    additional_requirements_zh: program.additional_requirements_zh,
+    university: program.university,
   };
 }
 

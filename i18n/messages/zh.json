@@ -1,0 +1,34 @@
+{
+  "nav": {
+    "home": "首页",
+    "universities": "大学列表",
+    "compare": "大学对比",
+    "about": "关于我们"
+  },
+  "home": {
+    "hero_title": "找到最适合你的马来西亚大学",
+    "hero_subtitle": "专为中国学生打造的留学信息平台，覆盖马来西亚顶尖公立与私立大学",
+    "hero_cta": "浏览所有大学",
+    "stats_universities": "所大学",
+    "stats_programs": "个专业",
+    "stats_students": "名留学生",
+    "featured_title": "精选院校",
+    "featured_subtitle": "马来西亚顶尖大学，为你优选",
+    "news_title": "最新动态"
+  },
+  "university": {
+    "public": "公立大学",
+    "private": "私立大学",
+    "ranking_qs": "QS排名",
+    "tuition": "学费",
+    "programs": "开设专业",
+    "location": "所在地",
+    "view_detail": "查看详情",
+    "filter_all": "全部",
+    "filter_public": "公立",
+    "filter_private": "私立",
+    "sort_ranking": "按排名",
+    "sort_name": "按名称",
+    "sort_tuition_low": "学费从低到高"
+  }
+}

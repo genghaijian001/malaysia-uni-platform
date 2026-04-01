@@ -1,6 +1,23 @@
 import { PrismaClient } from '@prisma/client';
+import { PrismaPg } from '@prisma/adapter-pg';
+import 'dotenv/config';
+import monashPrograms from '../data/monash-programs';
 
-const prisma = new PrismaClient();
+const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL! });
+const prisma = new PrismaClient({ adapter });
+
+/** Generate a URL-safe slug from English program name + university slug prefix */
+function generateProgramSlug(uniSlug: string, nameEn: string): string {
+  const base = nameEn
+    .toLowerCase()
+    .replace(/[()]/g, '')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/^-|-$/g, '');
+  // Use first 3 chars of university slug as prefix for uniqueness
+  const prefix = uniSlug.split('-').map(w => w[0]).join('').slice(0, 4);
+  return `${prefix}-${base}`;
+}
 
 async function main() {
   console.log('🌱 开始导入种子数据...');
@@ -328,6 +345,7 @@ async function main() {
     for (const prog of umPrograms) {
       await prisma.program.create({
         data: {
+          slug: generateProgramSlug('universiti-malaya', prog.name_en),
           university_id: um.id,
           name_zh: prog.name_zh,
           name_en: prog.name_en,
@@ -350,77 +368,43 @@ async function main() {
     console.log('✅ 已导入马来亚大学专业数据');
   }
 
-  // Add programs for Monash
+  // Add programs for Monash (42 programs from data/monash-programs.ts)
   const monash = await prisma.university.findUnique({ where: { slug: 'monash-university-malaysia' } });
   if (monash) {
     await prisma.program.deleteMany({ where: { university_id: monash.id } });
 
-    const monashPrograms = [
-      {
-        name_zh: '商科（荣誉）',
-        name_en: 'Bachelor of Commerce (Hons)',
-        degree_level: 'bachelor' as const,
-        field_category: '商科与管理',
-        duration_years: 3,
-        tuition_international_myr: 47400,
-        intake_months: [3, 7],
-        min_ielts: 6.5,
-      },
-      {
-        name_zh: '计算机科学（荣誉）',
-        name_en: 'Bachelor of Computer Science (Hons)',
-        degree_level: 'bachelor' as const,
-        field_category: '计算机与IT',
-        duration_years: 3,
-        tuition_international_myr: 47400,
-        intake_months: [3, 7],
-        min_ielts: 6.5,
-      },
-      {
-        name_zh: '化学工程（荣誉）',
-        name_en: 'Bachelor of Chemical Engineering (Hons)',
-        degree_level: 'bachelor' as const,
-        field_category: '工程与技术',
-        duration_years: 4,
-        tuition_international_myr: 48600,
-        intake_months: [3, 7],
-        min_ielts: 6.5,
-      },
-      {
-        name_zh: '工商管理硕士（MBA）',
-        name_en: 'Master of Business Administration',
-        degree_level: 'master' as const,
-        field_category: '商科与管理',
-        duration_years: 1.5,
-        tuition_international_myr: 52000,
-        intake_months: [3, 7],
-        min_ielts: 7.0,
-      },
-    ];
-
     for (const prog of monashPrograms) {
       await prisma.program.create({
         data: {
+          slug: generateProgramSlug('monash-university-malaysia', prog.name_en),
           university_id: monash.id,
           name_zh: prog.name_zh,
           name_en: prog.name_en,
           degree_level: prog.degree_level,
           field_category: prog.field_category,
+          faculty_zh: prog.faculty_zh,
           duration_years: prog.duration_years,
           tuition_international_myr: prog.tuition_international_myr,
-          tuition_international_cny_estimate: Math.round(prog.tuition_international_myr * 1.6),
-          language_of_instruction: '英语',
+          tuition_international_cny_estimate: prog.tuition_international_cny_estimate,
+          language_of_instruction: prog.language_of_instruction,
           intake_months: prog.intake_months,
           min_ielts: prog.min_ielts,
-          scholarship_available: true,
-          scholarship_note_zh:
-            '蒙纳士大学提供Monash International Merit Scholarship，最高可获全额学费减免。',
-          requirements_zh: `申请要求：学术成绩优秀；雅思${prog.min_ielts}分；高考成绩参考各省份分数线。`,
-          accreditation_zh: '澳大利亚及马来西亚双重认证，中国教育部认证',
+          min_toefl: prog.min_toefl ?? undefined,
+          min_gpa: prog.min_gpa ?? undefined,
+          scholarship_available: prog.scholarship_available,
+          scholarship_note_zh: prog.scholarship_note_zh ?? undefined,
+          requirements_zh: prog.requirements_zh,
+          curriculum_zh: prog.curriculum_zh,
+          career_prospects_zh: prog.career_prospects_zh,
+          application_materials_zh: prog.application_materials_zh,
+          additional_requirements_zh: prog.additional_requirements_zh ?? undefined,
+          accreditation_zh: prog.accreditation_zh,
+          application_deadline_note: prog.application_deadline_note,
+          tuition_note_zh: (prog as { tuition_note?: string }).tuition_note ?? undefined,
         },
       });
     }
-    console.log('✅ 已导入蒙纳士大学专业数据');
+    console.log(`✅ 已导入蒙纳士大学专业数据（${monashPrograms.length}个专业）`);
   }
 
   // Add programs for UTM
@@ -464,6 +448,7 @@ async function main() {
     for (const prog of utmPrograms) {
       await prisma.program.create({
         data: {
+          slug: generateProgramSlug('universiti-teknologi-malaysia', prog.name_en),
           university_id: utm.id,
           name_zh: prog.name_zh,
           name_en: prog.name_en,

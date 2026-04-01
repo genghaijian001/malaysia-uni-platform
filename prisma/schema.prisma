@@ -1,14 +1,11 @@
 // prisma/schema.prisma
 
 generator client {
-  provider        = "prisma-client-js"
-  previewFeatures = ["fullTextSearch"]
+  provider = "prisma-client-js"
 }
 
 datasource db {
-  provider  = "postgresql"
-  url       = env("DATABASE_URL")
-  directUrl = env("DIRECT_URL")
+  provider = "postgresql"
 }
 
 enum UniversityType {
@@ -96,6 +93,7 @@ model University {
 
 model Program {
   id            String     @id @default(cuid())
+  slug          String     @unique
   university_id String
   university    University @relation(fields: [university_id], references: [id], onDelete: Cascade)
 
@@ -129,6 +127,10 @@ model Program {
 
   accreditation_zh    String?
   career_prospects_zh String? @db.Text
+  curriculum_zh       String? @db.Text
+  application_materials_zh String? @db.Text
+  additional_requirements_zh String? @db.Text
+  faculty_zh          String?
   active              Boolean  @default(true)
   created_at          DateTime @default(now())
   updated_at          DateTime @updatedAt

@@ -6,6 +6,9 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
 
+    const rawPage = searchParams.get('page') ? Number(searchParams.get('page')) : 1;
+    const rawLimit = searchParams.get('limit') ? Number(searchParams.get('limit')) : 12;
+
     const filters: SearchFilters = {
       q: searchParams.get('q') || undefined,
       type: (searchParams.get('type') as SearchFilters['type']) || undefined,
@@ -15,8 +18,8 @@ export async function GET(request: NextRequest) {
       tuition_max: searchParams.get('tuition_max') ? Number(searchParams.get('tuition_max')) : undefined,
       scholarship: searchParams.get('scholarship') === 'true' ? true : undefined,
       sort: (searchParams.get('sort') as SearchFilters['sort']) || 'ranking',
-      page: searchParams.get('page') ? Number(searchParams.get('page')) : 1,
-      limit: searchParams.get('limit') ? Number(searchParams.get('limit')) : 12,
+      page: rawPage > 0 ? rawPage : 1,
+      limit: rawLimit > 0 ? rawLimit : 12,
     };
 
     const result = await getUniversities(filters);

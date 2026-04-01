@@ -42,6 +42,7 @@ export interface UniversityDetail extends UniversityListItem {
 
 export interface ProgramSummary {
   id: string;
+  slug: string;
   name_zh: string;
   name_en: string;
   degree_level: DegreeLevel;
@@ -52,6 +53,32 @@ export interface ProgramSummary {
   scholarship_available: boolean;
   intake_months: number[];
   language_of_instruction: string;
+  faculty_zh: string | null;
+}
+
+export interface ProgramDetail extends ProgramSummary {
+  code: string | null;
+  tuition_local_myr: number | null;
+  tuition_note_zh: string | null;
+  requirements_zh: string | null;
+  min_gpa: number | null;
+  min_ielts: number | null;
+  min_toefl: number | null;
+  scholarship_note_zh: string | null;
+  accreditation_zh: string | null;
+  career_prospects_zh: string | null;
+  curriculum_zh: string | null;
+  application_materials_zh: string | null;
+  additional_requirements_zh: string | null;
+  application_deadline_note: string | null;
+  max_intake: number | null;
+  university: {
+    slug: string;
+    name_zh: string;
+    name_en: string;
+    type: UniversityType;
+    logo_url: string | null;
+  };
 }
 
 export interface ContactInfo {

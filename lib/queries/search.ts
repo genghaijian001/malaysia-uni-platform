@@ -1,7 +1,7 @@
 import { db } from '@/lib/db';
 
 export async function getSearchSuggestions(q: string) {
-  if (!q || q.length < 2) return [];
+  if (!q || q.length < 2) return { universities: [], programs: [] };
 
   const [universities, programs] = await Promise.all([
     db.university.findMany({
