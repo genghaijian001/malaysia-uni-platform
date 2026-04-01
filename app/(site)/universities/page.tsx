@@ -2,6 +2,7 @@ import { Suspense } from "react";
 import UniversityCard from "@/components/university/UniversityCard";
 import UniversityFilterBar from "@/components/university/UniversityFilterBar";
 import { Skeleton } from "@/components/ui/skeleton";
+import { getUniversities } from "@/lib/queries/university";
 import type { UniversityListItem } from "@/types/university";
 
 interface PageProps {
@@ -21,38 +22,22 @@ async function UniversityGrid({
   state?: string;
   sort?: string;
 }) {
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL ?? "http://localhost:3000";
-  const params = new URLSearchParams();
-  if (type && type !== "all") params.set("type", type);
-  if (state && state !== "全部州属") params.set("state", state);
-  if (sort) params.set("sort", sort);
-
-  const queryString = params.toString();
-  const url = `${baseUrl}/api/universities${queryString ? `?${queryString}` : ""}`;
-
   let universities: UniversityListItem[] = [];
 
   try {
-    const res = await fetch(url, { next: { revalidate: 300 } });
-    if (!res.ok) throw new Error("获取数据失败");
-    const data = await res.json();
-    universities = data.data ?? [];
+    const result = await getUniversities({
+      type: type && type !== "all" ? (type as "public" | "private") : undefined,
+      state: state && state !== "全部州属" ? state : undefined,
+      sort: sort as "ranking" | "name" | "tuition_asc" | "tuition_desc" | undefined,
+    });
+    universities = result.data;
   } catch {
-    // Primary API failed — try mock fallback
-    try {
-      const mockRes = await fetch(`${baseUrl}/api/mock/universities`, { cache: "no-store" });
-      if (mockRes.ok) {
-        const mockData = await mockRes.json();
-        universities = mockData.data ?? [];
-      }
-    } catch {
-      return (
-        <div className="text-center py-16 text-gray-500">
-          <p className="text-lg mb-2">数据加载失败</p>
-          <p className="text-sm">请检查网络连接后刷新页面</p>
-        </div>
-      );
-    }
+    return (
+      <div className="text-center py-16 text-gray-500">
+        <p className="text-lg mb-2">数据加载失败</p>
+        <p className="text-sm">请检查网络连接后刷新页面</p>
+      </div>
+    );
   }
 
   if (universities.length === 0) {

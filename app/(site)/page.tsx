@@ -3,6 +3,7 @@ import { Suspense } from "react";
 import { BookOpenIcon, DollarSignIcon, MapIcon, GlobeIcon } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import UniversityCard from "@/components/university/UniversityCard";
+import { getFeaturedUniversities, getUniversityStats } from "@/lib/queries/university";
 import type { UniversityListItem } from "@/types/university";
 
 /** Format date string to Chinese locale: YYYY年M月D日 */
@@ -34,15 +35,10 @@ const staticNews = [
 ];
 
 async function StatsBar() {
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL ?? "http://localhost:3000";
   let stats = { totalUniversities: 8, totalPrograms: 100, publicCount: 6, privateCount: 2 };
 
   try {
-    const res = await fetch(`${baseUrl}/api/stats`, { next: { revalidate: 3600 } });
-    if (res.ok) {
-      const json = await res.json();
-      if (json.data) stats = json.data;
-    }
+    stats = await getUniversityStats();
   } catch {
     // Use defaults
   }
@@ -68,33 +64,10 @@ async function StatsBar() {
 
 async function FeaturedUniversities() {
   let universities: UniversityListItem[] = [];
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL ?? "http://localhost:3000";
 
   try {
-    const res = await fetch(`${baseUrl}/api/universities?limit=6`, { next: { revalidate: 3600 } });
-    if (!res.ok) throw new Error("Fetch failed");
-    const data = await res.json();
-    universities = data.data ?? [];
+    universities = await getFeaturedUniversities();
   } catch {
-    // Fallback to mock API
-    try {
-      const mockRes = await fetch(`${baseUrl}/api/mock/universities`, { cache: "no-store" });
-      if (mockRes.ok) {
-        const mockData = await mockRes.json();
-        universities = mockData.data ?? [];
-        if (universities.length > 0) {
-          return (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {universities.map((uni) => (
-                <UniversityCard key={uni.id} university={uni} />
-              ))}
-            </div>
-          );
-        }
-      }
-    } catch {
-      // Mock also failed
-    }
     // Show skeleton grid on error
     return (
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
