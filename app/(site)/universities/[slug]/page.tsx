@@ -4,10 +4,10 @@ import type { Metadata } from "next";
 import { MapPinIcon, CalendarIcon, UsersIcon, GlobeIcon, PhoneIcon, MailIcon } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Skeleton } from "@/components/ui/skeleton";
 import type { UniversityDetail } from "@/types/university";
 import ProgramsByDegree from "@/components/university/ProgramsByDegree";
 import AdmissionRequirements from "@/components/university/AdmissionRequirements";
+import { getUniversityBySlug } from "@/lib/queries/university";
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -25,26 +25,10 @@ function formatDateZh(isoString: string): string {
   return `${d.getFullYear()}年${d.getMonth() + 1}月${d.getDate()}日`;
 }
 
-/** Fetch university data — reusable for both metadata and page */
-async function fetchUniversity(slug: string): Promise<UniversityDetail | null> {
-  try {
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_BASE_URL ?? "http://localhost:3000"}/api/universities/${slug}`,
-      { next: { revalidate: 3600 } }
-    );
-    if (res.status === 404) return null;
-    if (!res.ok) return null;
-    const json = await res.json();
-    return json.data ?? json;
-  } catch {
-    return null;
-  }
-}
-
 /** Dynamic metadata per university (SEO-002) */
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
-  const university = await fetchUniversity(slug);
+  const university = await getUniversityBySlug(slug);
 
   if (!university) {
     return { title: "大学不存在 — 马来西亚大学信息平台" };
@@ -59,7 +43,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 export default async function UniversityDetailPage({ params }: PageProps) {
   const { slug } = await params;
 
-  const university = await fetchUniversity(slug);
+  const university = await getUniversityBySlug(slug);
 
   if (!university) {
     notFound();

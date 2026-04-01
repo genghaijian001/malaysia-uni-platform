@@ -15,6 +15,7 @@ const navLinks = [
   { href: "/", label: "首页" },
   { href: "/universities", label: "大学列表" },
   { href: "/about", label: "关于我们" },
+  { href: "/contact", label: "联系我们" },
 ];
 
 export default function Navbar() {
