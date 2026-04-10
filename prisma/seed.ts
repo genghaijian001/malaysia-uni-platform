@@ -2,6 +2,11 @@ import { PrismaClient } from '@prisma/client';
 import { PrismaPg } from '@prisma/adapter-pg';
 import 'dotenv/config';
 import monashPrograms from '../data/monash-programs';
+import umPrograms from '../data/um-programs';
+import usmPrograms from '../data/usm-programs';
+import ukmPrograms from '../data/ukm-programs';
+import utmPrograms from '../data/utm-programs';
+import upmPrograms from '../data/upm-programs';
 
 const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL! });
 const prisma = new PrismaClient({ adapter });
@@ -273,75 +278,10 @@ async function main() {
     }
   }
 
-  // Add programs for UM
+  // Add programs for UM (34 programs from data/um-programs.ts)
   const um = await prisma.university.findUnique({ where: { slug: 'universiti-malaya' } });
   if (um) {
-    // Delete existing programs to avoid duplicates on re-run
     await prisma.program.deleteMany({ where: { university_id: um.id } });
-
-    const umPrograms = [
-      {
-        name_zh: '计算机科学（荣誉）',
-        name_en: 'Bachelor of Computer Science (Hons)',
-        degree_level: 'bachelor' as const,
-        field_category: '计算机与IT',
-        duration_years: 4,
-        tuition_international_myr: 15000,
-        intake_months: [3, 9],
-        min_ielts: 6.0,
-      },
-      {
-        name_zh: '工商管理（荣誉）',
-        name_en: 'Bachelor of Business Administration (Hons)',
-        degree_level: 'bachelor' as const,
-        field_category: '商科与管理',
-        duration_years: 3,
-        tuition_international_myr: 14000,
-        intake_months: [3, 9],
-        min_ielts: 6.0,
-      },
-      {
-        name_zh: '电气工程（荣誉）',
-        name_en: 'Bachelor of Electrical Engineering (Hons)',
-        degree_level: 'bachelor' as const,
-        field_category: '工程与技术',
-        duration_years: 4,
-        tuition_international_myr: 16000,
-        intake_months: [9],
-        min_ielts: 6.0,
-      },
-      {
-        name_zh: '计算机科学硕士',
-        name_en: 'Master of Computer Science',
-        degree_level: 'master' as const,
-        field_category: '计算机与IT',
-        duration_years: 1.5,
-        tuition_international_myr: 18000,
-        intake_months: [3, 9],
-        min_ielts: 6.5,
-      },
-      {
-        name_zh: '工商管理硕士（MBA）',
-        name_en: 'Master of Business Administration',
-        degree_level: 'master' as const,
-        field_category: '商科与管理',
-        duration_years: 1.5,
-        tuition_international_myr: 35000,
-        intake_months: [3, 9],
-        min_ielts: 6.5,
-      },
-      {
-        name_zh: '计算机科学博士',
-        name_en: 'Doctor of Philosophy (Computer Science)',
-        degree_level: 'phd' as const,
-        field_category: '计算机与IT',
-        duration_years: 3,
-        tuition_international_myr: 12000,
-        intake_months: [3, 9],
-        min_ielts: 6.5,
-      },
-    ];
-
     for (const prog of umPrograms) {
       await prisma.program.create({
         data: {
@@ -351,21 +291,29 @@ async function main() {
           name_en: prog.name_en,
           degree_level: prog.degree_level,
           field_category: prog.field_category,
+          faculty_zh: prog.faculty_zh,
           duration_years: prog.duration_years,
           tuition_international_myr: prog.tuition_international_myr,
-          tuition_international_cny_estimate: Math.round(prog.tuition_international_myr * 1.6),
-          language_of_instruction: '英语',
+          tuition_international_cny_estimate: prog.tuition_international_cny_estimate,
+          tuition_note_zh: prog.tuition_note ?? null,
+          language_of_instruction: prog.language_of_instruction,
           intake_months: prog.intake_months,
           min_ielts: prog.min_ielts,
-          scholarship_available: true,
-          scholarship_note_zh:
-            '马来亚大学为优秀国际学生提供多种奖学金，包括UM国际研究生奖学金（UMIGS）等，奖学金金额可覆盖全额或部分学费。',
-          requirements_zh: `申请要求：学术成绩优秀；雅思${prog.min_ielts}分或托福同等成绩；本科申请需高中毕业证书及相关考试成绩。`,
-          accreditation_zh: '马来西亚资格认证局（MQA）认证，中国教育部认证',
+          min_toefl: prog.min_toefl ?? null,
+          min_gpa: prog.min_gpa ?? null,
+          scholarship_available: prog.scholarship_available,
+          scholarship_note_zh: prog.scholarship_note_zh ?? null,
+          requirements_zh: prog.requirements_zh,
+          curriculum_zh: prog.curriculum_zh,
+          career_prospects_zh: prog.career_prospects_zh,
+          application_materials_zh: prog.application_materials_zh,
+          additional_requirements_zh: prog.additional_requirements_zh ?? null,
+          accreditation_zh: prog.accreditation_zh,
+          application_deadline_note: prog.application_deadline_note,
         },
       });
     }
-    console.log('✅ 已导入马来亚大学专业数据');
+    console.log(`✅ 已导入马来亚大学专业数据（${umPrograms.length}个专业）`);
   }
 
   // Add programs for Monash (42 programs from data/monash-programs.ts)
@@ -407,44 +355,10 @@ async function main() {
     console.log(`✅ 已导入蒙纳士大学专业数据（${monashPrograms.length}个专业）`);
   }
 
-  // Add programs for UTM
+  // Add programs for UTM (from data/utm-programs.ts)
   const utm = await prisma.university.findUnique({ where: { slug: 'universiti-teknologi-malaysia' } });
   if (utm) {
     await prisma.program.deleteMany({ where: { university_id: utm.id } });
-
-    const utmPrograms = [
-      {
-        name_zh: '土木工程（荣誉）',
-        name_en: 'Bachelor of Civil Engineering (Hons)',
-        degree_level: 'bachelor' as const,
-        field_category: '工程与技术',
-        duration_years: 4,
-        tuition_international_myr: 13500,
-        intake_months: [9],
-        min_ielts: 6.0,
-      },
-      {
-        name_zh: '计算机工程（荣誉）',
-        name_en: 'Bachelor of Computer Engineering (Hons)',
-        degree_level: 'bachelor' as const,
-        field_category: '工程与技术',
-        duration_years: 4,
-        tuition_international_myr: 13500,
-        intake_months: [9],
-        min_ielts: 6.0,
-      },
-      {
-        name_zh: '软件工程硕士',
-        name_en: 'Master of Software Engineering',
-        degree_level: 'master' as const,
-        field_category: '计算机与IT',
-        duration_years: 1.5,
-        tuition_international_myr: 16000,
-        intake_months: [3, 9],
-        min_ielts: 6.0,
-      },
-    ];
-
     for (const prog of utmPrograms) {
       await prisma.program.create({
         data: {
@@ -454,20 +368,143 @@ async function main() {
           name_en: prog.name_en,
           degree_level: prog.degree_level,
           field_category: prog.field_category,
+          faculty_zh: prog.faculty_zh,
           duration_years: prog.duration_years,
           tuition_international_myr: prog.tuition_international_myr,
-          tuition_international_cny_estimate: Math.round(prog.tuition_international_myr * 1.6),
-          language_of_instruction: '英语',
+          tuition_international_cny_estimate: prog.tuition_international_cny_estimate,
+          tuition_note_zh: prog.tuition_note ?? null,
+          language_of_instruction: prog.language_of_instruction,
           intake_months: prog.intake_months,
           min_ielts: prog.min_ielts,
-          scholarship_available: true,
-          scholarship_note_zh: 'UTM提供多项国际学生奖学金，包括UTM国际研究生奖学金（IPS）。',
-          requirements_zh: `申请要求：理工科背景；雅思${prog.min_ielts}分或托福80分以上；GPA 3.0以上。`,
-          accreditation_zh: '马来西亚工程师学会（IEM）认证，中国教育部认证',
+          min_toefl: prog.min_toefl ?? null,
+          min_gpa: prog.min_gpa ?? null,
+          scholarship_available: prog.scholarship_available,
+          scholarship_note_zh: prog.scholarship_note_zh ?? null,
+          requirements_zh: prog.requirements_zh,
+          curriculum_zh: prog.curriculum_zh,
+          career_prospects_zh: prog.career_prospects_zh,
+          application_materials_zh: prog.application_materials_zh,
+          additional_requirements_zh: prog.additional_requirements_zh ?? null,
+          accreditation_zh: prog.accreditation_zh,
+          application_deadline_note: prog.application_deadline_note,
         },
       });
     }
-    console.log('✅ 已导入马来西亚理工大学专业数据');
+    console.log(`✅ 已导入马来西亚理工大学专业数据（${utmPrograms.length}个专业）`);
+  }
+
+  // Add programs for USM (from data/usm-programs.ts)
+  const usm = await prisma.university.findUnique({ where: { slug: 'universiti-sains-malaysia' } });
+  if (usm) {
+    await prisma.program.deleteMany({ where: { university_id: usm.id } });
+    for (const prog of usmPrograms) {
+      await prisma.program.create({
+        data: {
+          slug: generateProgramSlug('universiti-sains-malaysia', prog.name_en),
+          university_id: usm.id,
+          name_zh: prog.name_zh,
+          name_en: prog.name_en,
+          degree_level: prog.degree_level,
+          field_category: prog.field_category,
+          faculty_zh: prog.faculty_zh,
+          duration_years: prog.duration_years,
+          tuition_international_myr: prog.tuition_international_myr,
+          tuition_international_cny_estimate: prog.tuition_international_cny_estimate,
+          tuition_note_zh: prog.tuition_note ?? null,
+          language_of_instruction: prog.language_of_instruction,
+          intake_months: prog.intake_months,
+          min_ielts: prog.min_ielts,
+          min_toefl: prog.min_toefl ?? null,
+          min_gpa: prog.min_gpa ?? null,
+          scholarship_available: prog.scholarship_available,
+          scholarship_note_zh: prog.scholarship_note_zh ?? null,
+          requirements_zh: prog.requirements_zh,
+          curriculum_zh: prog.curriculum_zh,
+          career_prospects_zh: prog.career_prospects_zh,
+          application_materials_zh: prog.application_materials_zh,
+          additional_requirements_zh: prog.additional_requirements_zh ?? null,
+          accreditation_zh: prog.accreditation_zh,
+          application_deadline_note: prog.application_deadline_note,
+        },
+      });
+    }
+    console.log(`✅ 已导入马来西亚理科大学专业数据（${usmPrograms.length}个专业）`);
+  }
+
+  // Add programs for UKM (from data/ukm-programs.ts)
+  const ukm = await prisma.university.findUnique({ where: { slug: 'universiti-kebangsaan-malaysia' } });
+  if (ukm) {
+    await prisma.program.deleteMany({ where: { university_id: ukm.id } });
+    for (const prog of ukmPrograms) {
+      await prisma.program.create({
+        data: {
+          slug: generateProgramSlug('universiti-kebangsaan-malaysia', prog.name_en),
+          university_id: ukm.id,
+          name_zh: prog.name_zh,
+          name_en: prog.name_en,
+          degree_level: prog.degree_level,
+          field_category: prog.field_category,
+          faculty_zh: prog.faculty_zh,
+          duration_years: prog.duration_years,
+          tuition_international_myr: prog.tuition_international_myr,
+          tuition_international_cny_estimate: prog.tuition_international_cny_estimate,
+          tuition_note_zh: prog.tuition_note ?? null,
+          language_of_instruction: prog.language_of_instruction,
+          intake_months: prog.intake_months,
+          min_ielts: prog.min_ielts,
+          min_toefl: prog.min_toefl ?? null,
+          min_gpa: prog.min_gpa ?? null,
+          scholarship_available: prog.scholarship_available,
+          scholarship_note_zh: prog.scholarship_note_zh ?? null,
+          requirements_zh: prog.requirements_zh,
+          curriculum_zh: prog.curriculum_zh,
+          career_prospects_zh: prog.career_prospects_zh,
+          application_materials_zh: prog.application_materials_zh,
+          additional_requirements_zh: prog.additional_requirements_zh ?? null,
+          accreditation_zh: prog.accreditation_zh,
+          application_deadline_note: prog.application_deadline_note,
+        },
+      });
+    }
+    console.log(`✅ 已导入马来西亚国立大学专业数据（${ukmPrograms.length}个专业）`);
+  }
+
+  // Add programs for UPM (from data/upm-programs.ts)
+  const upm = await prisma.university.findUnique({ where: { slug: 'universiti-putra-malaysia' } });
+  if (upm) {
+    await prisma.program.deleteMany({ where: { university_id: upm.id } });
+    for (const prog of upmPrograms) {
+      await prisma.program.create({
+        data: {
+          slug: generateProgramSlug('universiti-putra-malaysia', prog.name_en),
+          university_id: upm.id,
+          name_zh: prog.name_zh,
+          name_en: prog.name_en,
+          degree_level: prog.degree_level,
+          field_category: prog.field_category,
+          faculty_zh: prog.faculty_zh,
+          duration_years: prog.duration_years,
+          tuition_international_myr: prog.tuition_international_myr,
+          tuition_international_cny_estimate: prog.tuition_international_cny_estimate,
+          tuition_note_zh: prog.tuition_note ?? null,
+          language_of_instruction: prog.language_of_instruction,
+          intake_months: prog.intake_months,
+          min_ielts: prog.min_ielts,
+          min_toefl: prog.min_toefl ?? null,
+          min_gpa: prog.min_gpa ?? null,
+          scholarship_available: prog.scholarship_available,
+          scholarship_note_zh: prog.scholarship_note_zh ?? null,
+          requirements_zh: prog.requirements_zh,
+          curriculum_zh: prog.curriculum_zh,
+          career_prospects_zh: prog.career_prospects_zh,
+          application_materials_zh: prog.application_materials_zh,
+          additional_requirements_zh: prog.additional_requirements_zh ?? null,
+          accreditation_zh: prog.accreditation_zh,
+          application_deadline_note: prog.application_deadline_note,
+        },
+      });
+    }
+    console.log(`✅ 已导入马来西亚博特拉大学专业数据（${upmPrograms.length}个专业）`);
   }
 
   // Add sample news updates
