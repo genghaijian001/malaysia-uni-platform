@@ -219,15 +219,15 @@ const fsktmPrograms: UMProgram[] = [
     duration_years: 1.5,
     language_of_instruction: 'English',
     intake_months: [3, 6, 9],
-    tuition_international_myr: 18000,
-    tuition_international_cny_estimate: cny(18000),
-    tuition_note: '总学费约MYR 27,000（1.5年），每学年约MYR 18,000',
-    min_ielts: 6.5,
-    min_toefl: 90,
+    tuition_international_myr: 21600,
+    tuition_international_cny_estimate: cny(21600),
+    tuition_note: '总学费约MYR 43,200（约2年，官方数据），每学年约MYR 21,600',
+    min_ielts: 6.0,
+    min_toefl: 79,
     min_gpa: 2.75,
     requirements_zh:
       '学术要求：计算机科学、信息技术或相关领域学士学位，CGPA 2.75或以上（4.0制）；' +
-      '英语要求：IELTS 6.5（各单项不低于6.0）或TOEFL iBT 90；' +
+      '英语要求：IELTS 6.0或TOEFL iBT 79；' +
       '两年以上相关工作经验者可适当放宽学术要求（需提交经验证明）。',
     scholarship_available: true,
     scholarship_note_zh:
@@ -260,15 +260,15 @@ const fsktmPrograms: UMProgram[] = [
     duration_years: 1.5,
     language_of_instruction: 'English',
     intake_months: [3, 9],
-    tuition_international_myr: 19500,
-    tuition_international_cny_estimate: cny(19500),
-    tuition_note: '总学费约MYR 29,000（1.5年）',
-    min_ielts: 6.5,
-    min_toefl: 90,
+    tuition_international_myr: 24050,
+    tuition_international_cny_estimate: cny(24050),
+    tuition_note: '总学费约MYR 48,100（约2年，官方数据），每学年约MYR 24,050',
+    min_ielts: 6.0,
+    min_toefl: 79,
     min_gpa: 2.75,
     requirements_zh:
       '学术要求：计算机科学、统计学、数学、工程或相关领域学士学位，CGPA 2.75+；' +
-      '英语要求：IELTS 6.5或TOEFL iBT 90；' +
+      '英语要求：IELTS 6.0或TOEFL iBT 79；' +
       '建议具备统计学或编程基础（Python/R）。',
     scholarship_available: true,
     scholarship_note_zh:
@@ -299,15 +299,15 @@ const fsktmPrograms: UMProgram[] = [
     duration_years: 3,
     language_of_instruction: 'English',
     intake_months: [3, 6, 9],
-    tuition_international_myr: 14000,
-    tuition_international_cny_estimate: cny(14000),
-    tuition_note: '每学年约MYR 14,000，研究型学位，通常3-5年完成',
-    min_ielts: 6.5,
-    min_toefl: 90,
+    tuition_international_myr: 28900,
+    tuition_international_cny_estimate: cny(28900),
+    tuition_note: '每学年约MYR 28,900（国际生）；3年制总学费约MYR 86,600（官方公布数据，来源：UM ARC 2025）',
+    min_ielts: 6.0,
+    min_toefl: 60,
     min_gpa: 3.0,
     requirements_zh:
       '学术要求：计算机科学或相关领域硕士学位（CGPA 3.0+），或本科成绩优异者可直接申请；' +
-      '英语要求：IELTS 6.5或TOEFL iBT 90；' +
+      '英语要求：IELTS 6.0或TOEFL iBT 60（来源：UM FSKTM 2025/2026博士入学要求官方文件）；' +
       '须提交详细研究计划书（Research Proposal，约3,000字），' +
       '需获得UM教授同意担任督导（Supervisor）方可正式申请。',
     scholarship_available: true,
