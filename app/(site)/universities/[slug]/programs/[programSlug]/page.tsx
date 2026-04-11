@@ -10,6 +10,9 @@ import {
   FileTextIcon,
   GraduationCapIcon,
   BriefcaseIcon,
+  Languages,
+  AlertCircleIcon,
+  CheckCircle2Icon,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { getProgramBySlug } from "@/lib/queries/university";
@@ -25,19 +28,16 @@ const DEGREE_LABEL: Record<string, string> = {
   phd: "博士",
 };
 
+const DEGREE_COLOR: Record<string, string> = {
+  bachelor: "bg-emerald-100 text-emerald-700",
+  master: "bg-blue-100 text-blue-700",
+  phd: "bg-purple-100 text-purple-700",
+};
+
 const MONTH_NAMES: Record<number, string> = {
-  1: "1月",
-  2: "2月",
-  3: "3月",
-  4: "4月",
-  5: "5月",
-  6: "6月",
-  7: "7月",
-  8: "8月",
-  9: "9月",
-  10: "10月",
-  11: "11月",
-  12: "12月",
+  1: "1月", 2: "2月", 3: "3月", 4: "4月",
+  5: "5月", 6: "6月", 7: "7月", 8: "8月",
+  9: "9月", 10: "10月", 11: "11月", 12: "12月",
 };
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
@@ -65,6 +65,8 @@ export default async function ProgramDetailPage({ params }: PageProps) {
   const intakeText = program.intake_months.length > 0
     ? program.intake_months.map((m) => MONTH_NAMES[m] ?? `${m}月`).join("、")
     : "请咨询院校";
+
+  const degreeColor = DEGREE_COLOR[program.degree_level] ?? "bg-gray-100 text-gray-700";
 
   return (
     <div className="bg-gray-50 min-h-screen">
@@ -109,32 +111,32 @@ export default async function ProgramDetailPage({ params }: PageProps) {
                 {program.university.name_zh.slice(0, 2)}
               </div>
             )}
-            <div className="flex-1">
+            <div className="flex-1 min-w-0">
               <div className="flex flex-wrap items-center gap-2 mb-1">
                 <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">
                   {program.name_zh}
                 </h1>
-                <Badge className="bg-blue-100 text-blue-700 border-0">
+                <Badge className={`border-0 ${degreeColor}`}>
                   {DEGREE_LABEL[program.degree_level] ?? program.degree_level}
                 </Badge>
               </div>
-              <p className="text-gray-500 text-sm mb-2">{program.name_en}</p>
+              <p className="text-gray-500 text-sm mb-3">{program.name_en}</p>
               <div className="flex flex-wrap gap-3 text-sm text-gray-600">
-                <span className="flex items-center gap-1">
+                <span className="flex items-center gap-1.5">
                   <GraduationCapIcon className="size-4 text-gray-400" />
                   {program.university.name_zh}
                 </span>
                 {program.faculty_zh && (
-                  <span className="flex items-center gap-1">
+                  <span className="flex items-center gap-1.5">
                     <BookOpenIcon className="size-4 text-gray-400" />
                     {program.faculty_zh}
                   </span>
                 )}
-                <span className="flex items-center gap-1">
+                <span className="flex items-center gap-1.5">
                   <ClockIcon className="size-4 text-gray-400" />
                   {program.duration_years}年学制
                 </span>
-                <span className="flex items-center gap-1">
+                <span className="flex items-center gap-1.5">
                   <GlobeIcon className="size-4 text-gray-400" />
                   {program.language_of_instruction}授课
                 </span>
@@ -146,68 +148,110 @@ export default async function ProgramDetailPage({ params }: PageProps) {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-6">
-            {/* Admission Requirements */}
-            <section className="bg-white rounded-xl border border-gray-100 shadow-sm p-6">
-              <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+
+            {/* ── Admission Requirements ── */}
+            <section className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
+              <div className="px-6 py-4 border-b border-gray-100 flex items-center gap-2">
                 <FileTextIcon className="size-5 text-blue-600" />
-                入学要求
-              </h2>
-              <div className="space-y-3">
-                {program.min_ielts && (
-                  <div className="flex items-start gap-3">
-                    <span className="text-blue-500 shrink-0 mt-0.5">•</span>
-                    <p className="text-gray-700">
-                      <span className="font-medium">雅思（IELTS）：</span>
-                      最低 {program.min_ielts} 分
-                    </p>
-                  </div>
-                )}
-                {program.min_toefl && (
-                  <div className="flex items-start gap-3">
-                    <span className="text-blue-500 shrink-0 mt-0.5">•</span>
-                    <p className="text-gray-700">
-                      <span className="font-medium">托福（TOEFL）：</span>
-                      最低 {program.min_toefl} 分
-                    </p>
-                  </div>
-                )}
-                {program.min_gpa && (
-                  <div className="flex items-start gap-3">
-                    <span className="text-blue-500 shrink-0 mt-0.5">•</span>
-                    <p className="text-gray-700">
-                      <span className="font-medium">GPA / CGPA：</span>
-                      最低 {program.min_gpa}
-                    </p>
-                  </div>
-                )}
-                {program.requirements_zh && (
-                  <div className="flex items-start gap-3">
-                    <span className="text-blue-500 shrink-0 mt-0.5">•</span>
-                    <p className="text-gray-700 whitespace-pre-line">
+                <h2 className="text-lg font-semibold text-gray-900">入学要求</h2>
+              </div>
+
+              {/* Part 1: Academic Requirements */}
+              <div className="px-6 py-5">
+                <div className="flex items-center gap-2 mb-3">
+                  <GraduationCapIcon className="size-4 text-blue-500" />
+                  <h3 className="text-sm font-semibold text-blue-700 uppercase tracking-wide">
+                    学术要求 · Academic Requirements
+                  </h3>
+                </div>
+                <div className="space-y-2.5 pl-1">
+                  {program.min_gpa && (
+                    <div className="flex items-start gap-2.5">
+                      <CheckCircle2Icon className="size-4 text-blue-400 mt-0.5 shrink-0" />
+                      <p className="text-gray-700 text-sm">
+                        <span className="font-medium">最低 GPA / CGPA：</span>
+                        {program.min_gpa}
+                      </p>
+                    </div>
+                  )}
+                  {program.requirements_zh && (
+                    <div className="mt-3 bg-gray-50 rounded-lg p-4 text-sm text-gray-700 whitespace-pre-line leading-relaxed border border-gray-100">
                       {program.requirements_zh}
-                    </p>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Divider */}
+              <div className="mx-6 border-t border-dashed border-gray-200" />
+
+              {/* Part 2: English Language Competency Requirements */}
+              <div className="px-6 py-5">
+                <div className="flex items-center gap-2 mb-3">
+                  <Languages className="size-4 text-emerald-500" />
+                  <h3 className="text-sm font-semibold text-emerald-700 uppercase tracking-wide">
+                    英语语言能力要求 · English Language Competency Requirements
+                  </h3>
+                </div>
+                {(program.min_ielts || program.min_toefl) ? (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {program.min_ielts && (
+                      <div className="flex items-center gap-3 bg-emerald-50 border border-emerald-100 rounded-lg px-4 py-3">
+                        <div className="shrink-0 size-9 rounded-full bg-emerald-100 flex items-center justify-center">
+                          <span className="text-xs font-bold text-emerald-700">IL</span>
+                        </div>
+                        <div>
+                          <p className="text-xs text-gray-500">IELTS Academic</p>
+                          <p className="text-lg font-bold text-emerald-700">{program.min_ielts}</p>
+                          <p className="text-xs text-gray-400">最低分数</p>
+                        </div>
+                      </div>
+                    )}
+                    {program.min_toefl && (
+                      <div className="flex items-center gap-3 bg-emerald-50 border border-emerald-100 rounded-lg px-4 py-3">
+                        <div className="shrink-0 size-9 rounded-full bg-emerald-100 flex items-center justify-center">
+                          <span className="text-xs font-bold text-emerald-700">TB</span>
+                        </div>
+                        <div>
+                          <p className="text-xs text-gray-500">TOEFL iBT（考场）</p>
+                          <p className="text-lg font-bold text-emerald-700">{program.min_toefl}</p>
+                          <p className="text-xs text-gray-400">最低分数</p>
+                        </div>
+                      </div>
+                    )}
                   </div>
-                )}
-                {program.additional_requirements_zh && (
-                  <div className="flex items-start gap-3">
-                    <span className="text-amber-500 shrink-0 mt-0.5">★</span>
-                    <p className="text-gray-700">
-                      <span className="font-medium">附加要求：</span>
-                      {program.additional_requirements_zh}
-                    </p>
-                  </div>
+                ) : (
+                  <p className="text-sm text-gray-400">请以院校官方公布为准</p>
                 )}
               </div>
+
+              {/* Part 3: Additional Requirements */}
+              {program.additional_requirements_zh && (
+                <>
+                  <div className="mx-6 border-t border-dashed border-gray-200" />
+                  <div className="px-6 py-5">
+                    <div className="flex items-start gap-3 bg-amber-50 border border-amber-100 rounded-lg p-4">
+                      <AlertCircleIcon className="size-4 text-amber-500 mt-0.5 shrink-0" />
+                      <div>
+                        <p className="text-xs font-semibold text-amber-700 mb-1">★ 附加要求</p>
+                        <p className="text-sm text-amber-800 leading-relaxed">
+                          {program.additional_requirements_zh}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </>
+              )}
             </section>
 
             {/* Curriculum */}
             {program.curriculum_zh && (
-              <section className="bg-white rounded-xl border border-gray-100 shadow-sm p-6">
-                <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+              <section className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
+                <div className="px-6 py-4 border-b border-gray-100 flex items-center gap-2">
                   <BookOpenIcon className="size-5 text-blue-600" />
-                  课程结构
-                </h2>
-                <div className="text-gray-700 whitespace-pre-line leading-relaxed">
+                  <h2 className="text-lg font-semibold text-gray-900">课程结构</h2>
+                </div>
+                <div className="px-6 py-5 text-gray-700 whitespace-pre-line leading-relaxed text-sm">
                   {program.curriculum_zh}
                 </div>
               </section>
@@ -215,12 +259,12 @@ export default async function ProgramDetailPage({ params }: PageProps) {
 
             {/* Application Materials */}
             {program.application_materials_zh && (
-              <section className="bg-white rounded-xl border border-gray-100 shadow-sm p-6">
-                <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+              <section className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
+                <div className="px-6 py-4 border-b border-gray-100 flex items-center gap-2">
                   <FileTextIcon className="size-5 text-green-600" />
-                  申请材料
-                </h2>
-                <div className="text-gray-700 whitespace-pre-line leading-relaxed">
+                  <h2 className="text-lg font-semibold text-gray-900">申请材料</h2>
+                </div>
+                <div className="px-6 py-5 text-gray-700 whitespace-pre-line leading-relaxed text-sm">
                   {program.application_materials_zh}
                 </div>
               </section>
@@ -228,12 +272,12 @@ export default async function ProgramDetailPage({ params }: PageProps) {
 
             {/* Career Prospects */}
             {program.career_prospects_zh && (
-              <section className="bg-white rounded-xl border border-gray-100 shadow-sm p-6">
-                <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+              <section className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
+                <div className="px-6 py-4 border-b border-gray-100 flex items-center gap-2">
                   <BriefcaseIcon className="size-5 text-purple-600" />
-                  就业前景
-                </h2>
-                <div className="text-gray-700 whitespace-pre-line leading-relaxed">
+                  <h2 className="text-lg font-semibold text-gray-900">就业前景</h2>
+                </div>
+                <div className="px-6 py-5 text-gray-700 whitespace-pre-line leading-relaxed text-sm">
                   {program.career_prospects_zh}
                 </div>
               </section>
@@ -276,7 +320,7 @@ export default async function ProgramDetailPage({ params }: PageProps) {
                   </div>
                 )}
                 {program.tuition_note_zh && (
-                  <p className="text-xs text-gray-400">{program.tuition_note_zh}</p>
+                  <p className="text-xs text-gray-400 leading-relaxed">{program.tuition_note_zh}</p>
                 )}
               </div>
             </div>
@@ -310,9 +354,9 @@ export default async function ProgramDetailPage({ params }: PageProps) {
                   </div>
                 )}
                 {program.application_deadline_note && (
-                  <div className="flex justify-between gap-2">
-                    <dt className="text-gray-500 shrink-0">申请截止</dt>
-                    <dd className="text-gray-900 font-medium text-right">{program.application_deadline_note}</dd>
+                  <div className="pt-2 border-t border-gray-100">
+                    <dt className="text-gray-500 text-xs mb-1">申请截止</dt>
+                    <dd className="text-gray-900 font-medium text-xs leading-relaxed">{program.application_deadline_note}</dd>
                   </div>
                 )}
               </dl>
@@ -321,7 +365,10 @@ export default async function ProgramDetailPage({ params }: PageProps) {
             {/* Scholarship Card */}
             {program.scholarship_available && program.scholarship_note_zh && (
               <div className="bg-amber-50 rounded-xl border border-amber-100 shadow-sm p-6">
-                <h3 className="font-semibold text-amber-800 mb-2">🎓 奖学金信息</h3>
+                <h3 className="font-semibold text-amber-800 mb-2 flex items-center gap-2">
+                  <GraduationCapIcon className="size-4 text-amber-600" />
+                  奖学金信息
+                </h3>
                 <p className="text-sm text-amber-700 leading-relaxed">
                   {program.scholarship_note_zh}
                 </p>
